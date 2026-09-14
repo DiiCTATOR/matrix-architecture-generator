@@ -290,7 +290,6 @@ function LandingPage({onEnter, setPage}){
             <span>✦ Launch Slate</span>
             <span className="lp-btn-arrow">→</span>
           </button>
-          <button className="lp-btn-ghost" onClick={onEnter}>View Examples</button>
         </div>
 
         {/* Stats */}

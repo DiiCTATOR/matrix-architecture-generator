@@ -728,7 +728,7 @@ User -> Cognito`);
   return { nodes: outNodes, edges: outEdges };
 }
 
-const NW=120,NH=100,HG=110,VG=80,PAD=60;
+const NW=124,NH=104,HG=100,VG=80,PAD=60;
 function layout(nodes,edges){
   const inE={};nodes.forEach(n=>(inE[n.id]=[]));
   edges.forEach(e=>{if(inE[e.t])inE[e.t].push(e.f);});
@@ -771,9 +771,44 @@ function layout(nodes,edges){
 }
 
 function bezier(f,t,pos){
-  const fx=pos[f].x+NW/2,fy=pos[f].y+NH/2,tx=pos[t].x+NW/2,ty=pos[t].y+NH/2;
-  const mx=(fx+tx)/2;
-  return{d:`M${fx},${fy} C${mx},${fy} ${mx},${ty} ${tx},${ty}`,lx:mx,ly:(fy+ty)/2};
+  if(!pos[f]||!pos[t]) return {d:"",lx:0,ly:0};
+  const p1=pos[f];
+  const p2=pos[t];
+
+  // Standard Left to Right
+  if(p2.x > p1.x + 30){
+    const fx=p1.x + NW + 4;
+    const fy=p1.y + NH/2;
+    const tx=p2.x - 4;
+    const ty=p2.y + NH/2;
+    const mx=(fx+tx)/2;
+    return{d:`M${fx},${fy} C${mx},${fy} ${mx},${ty} ${tx},${ty}`,lx:mx,ly:(fy+ty)/2};
+  }
+
+  // Same Column (Vertical flow)
+  if(Math.abs(p2.x - p1.x) <= 30){
+    if(p2.y > p1.y){
+      const fx=p1.x + NW/2;
+      const fy=p1.y + NH + 4;
+      const tx=p2.x + NW/2;
+      const ty=p2.y - 4;
+      return{d:`M${fx},${fy} L${tx},${ty}`,lx:fx,ly:(fy+ty)/2};
+    } else {
+      const fx=p1.x + NW/2;
+      const fy=p1.y - 4;
+      const tx=p2.x + NW/2;
+      const ty=p2.y + NH + 4;
+      return{d:`M${fx},${fy} L${tx},${ty}`,lx:fx,ly:(fy+ty)/2};
+    }
+  }
+
+  // Backward / Feedback loop (e.g. SNS -> CodePipeline)
+  const fx=p1.x + NW/2;
+  const fy=p1.y + NH + 4;
+  const tx=p2.x + NW/2;
+  const ty=p2.y + NH + 4;
+  const loopY=Math.max(fy, ty) + 55;
+  return{d:`M${fx},${fy} C${fx},${loopY} ${tx},${loopY} ${tx},${ty}`,lx:(fx+tx)/2,ly:loopY-8};
 }
 
 export default function App(){
@@ -1344,8 +1379,8 @@ ONLY output the architecture using '->' arrows. Do not use any other service nam
               <div className="diagram-wrap" style={{transform:`scale(${zoom})`,transformOrigin:"top left",padding:"40px"}}>
                 <svg width={W} height={H} style={{display:"block",overflow:"visible",fontFamily:"Inter,sans-serif"}}>
                   <defs>
-                    <marker id="arr" markerWidth="10" markerHeight="10" refX="8" refY="4" orient="auto" markerUnits="strokeWidth">
-                      <path d="M0,1 L8,4 L0,7 z" fill="#2a2724"/>
+                    <marker id="arr" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto" markerUnits="strokeWidth">
+                      <path d="M0,0 L6,3 L0,6 z" fill="#2a2724"/>
                     </marker>
                   </defs>
 
@@ -1357,10 +1392,14 @@ ONLY output the architecture using '->' arrows. Do not use any other service nam
                     const labelWidth = Math.max(48, label.length * 6 + 12);
                     return(
                       <g key={i}>
-                        <path d={d} stroke="rgba(42, 39, 36, 0.06)" strokeWidth="4" fill="none" strokeLinecap="round"/>
+                        <path d={d} stroke="#faf8f5" strokeWidth="6" fill="none" strokeLinecap="round"/>
                         <path d={d} stroke={col} strokeWidth="1.8" fill="none" strokeLinecap="round" markerEnd="url(#arr)"/>
-                        <rect x={lx-labelWidth/2} y={ly-9} width={labelWidth} height={17} rx="4" fill="#ffffff" stroke="#2a2724" strokeWidth="1.5"/>
-                        <text x={lx} y={ly+3} fontSize="8.5" fill="#2a2724" textAnchor="middle" fontFamily="JetBrains Mono,monospace" fontWeight="700">{label}</text>
+                        {label && (
+                          <g transform={`translate(${lx}, ${ly})`}>
+                            <rect x={-labelWidth/2} y={-9} width={labelWidth} height={18} rx="4" fill="#ffffff" stroke="#2a2724" strokeWidth="1.5"/>
+                            <text x={0} y={3.5} fontSize="9" fill="#2a2724" textAnchor="middle" fontFamily="'JetBrains Mono', monospace" fontWeight="700">{label}</text>
+                          </g>
+                        )}
                       </g>
                     );
                   })}
@@ -1372,6 +1411,7 @@ ONLY output the architecture using '->' arrows. Do not use any other service nam
                     const Icon=ICONS[n.s];
                     const nodeCursor=tool==="pan"?"move":"pointer";
                     const displayName = n.l || svc.label;
+                    const badgeW = Math.min(svc.category.length * 6 + 12, NW - 16);
                     return(
                       <g key={n.id} data-nodeid={n.id}
                         style={{cursor:nodeCursor}}
@@ -1380,23 +1420,27 @@ ONLY output the architecture using '->' arrows. Do not use any other service nam
                           ev.stopPropagation();
                           setSel(n.id);
                         }}>
-                        {/* Flat block shadow */}
+                        {/* Crisp flat block shadow */}
                         <rect x={p.x+4} y={p.y+4} width={NW} height={NH} rx="12" fill="#2a2724"/>
                         {/* Main Card */}
-                        <rect x={p.x} y={p.y} width={NW} height={NH} rx="12" fill="#ffffff" stroke={isS?svc.color:"#2a2724"} strokeWidth={isS?2.5:1.5}/>
+                        <rect x={p.x} y={p.y} width={NW} height={NH} rx="12" fill="#ffffff" stroke={isS?svc.color:"#2a2724"} strokeWidth={isS?2.5:1.75}/>
                         {/* Top Accent Line */}
-                        <rect x={p.x+8} y={p.y} width={NW-16} height={4} rx="2" fill={svc.color} opacity="0.95"/>
+                        <rect x={p.x+10} y={p.y} width={NW-20} height={4} rx="2" fill={svc.color}/>
+                        {/* AWS Official Icon */}
                         {Icon ? (
-                          <svg x={p.x+NW/2-22} y={p.y+22} width={44} height={44}>
+                          <svg x={p.x+(NW-44)/2} y={p.y+16} width={44} height={44}>
                             <Icon size={44} />
                           </svg>
                         ) : (
-                          <text x={p.x+NW/2} y={p.y+46} fontSize="26" textAnchor="middle" dominantBaseline="middle" fill="#2a2724">●</text>
+                          <text x={p.x+NW/2} y={p.y+40} fontSize="26" textAnchor="middle" dominantBaseline="middle" fill={svc.color}>●</text>
                         )}
-                        <text x={p.x+NW/2} y={p.y+NH-22} fontSize="10.5" fontWeight="700" fill="#2a2724" textAnchor="middle" fontFamily="'Plus Jakarta Sans', 'Inter', sans-serif">{displayName}</text>
-                        <rect x={p.x+(NW-svc.category.length*5.5-12)/2} y={p.y+NH-14} width={svc.category.length*5.5+12} height={11} rx="3.5" fill={`${svc.color}15`} stroke={`${svc.color}35`} strokeWidth="0.5"/>
-                        <text x={p.x+NW/2} y={p.y+NH-6} fontSize="7" fill={svc.color} textAnchor="middle" fontWeight="700" letterSpacing=".06em">{svc.category.toUpperCase()}</text>
-                        {isS&&<rect x={p.x-4} y={p.y-4} width={NW+8} height={NH+8} rx="15" fill="none" stroke={svc.color} strokeWidth="1.5" strokeDasharray="3 3"/>}
+                        {/* Node Label */}
+                        <text x={p.x+NW/2} y={p.y+NH-24} fontSize="11" fontWeight="800" fill="#2a2724" textAnchor="middle" fontFamily="'Plus Jakarta Sans', 'Inter', sans-serif">{displayName}</text>
+                        {/* Category Badge */}
+                        <rect x={p.x+(NW-badgeW)/2} y={p.y+NH-16} width={badgeW} height={12} rx="3.5" fill={`${svc.color}18`} stroke={`${svc.color}40`} strokeWidth="0.75"/>
+                        <text x={p.x+NW/2} y={p.y+NH-8} fontSize="7" fill={svc.color} textAnchor="middle" fontWeight="800" letterSpacing=".05em">{svc.category.toUpperCase()}</text>
+                        {/* Active Selection Glow */}
+                        {isS&&<rect x={p.x-4} y={p.y-4} width={NW+8} height={NH+8} rx="15" fill="none" stroke={svc.color} strokeWidth="2" strokeDasharray="4 4"/>}
                       </g>
                     );
                   })}

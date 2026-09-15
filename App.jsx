@@ -121,66 +121,66 @@ const SERVICES={
 
 const ALIASES={
   "user":"User","developer":"User","client":"User","customer":"User",
-  "internet":"Internet","web":"Internet","public":"Internet",
+  "internet":"Internet","public web":"Internet","web users":"Internet",
   "waf":"WAF","firewall":"WAF",
   "cloudfront":"CloudFront","cdn":"CloudFront",
   "route 53":"Route53","route53":"Route53","dns":"Route53",
-  "alb":"ALB","load balancing":"ALB","load balancer":"ALB","elb":"ELB",
-  "vpc":"VPC","network":"VPC","subnet":"VPC",
+  "alb":"ALB","load balancing":"ALB","load balancer":"ALB","application load balancer":"ALB","elb":"ELB",
+  "vpc":"VPC","virtual private cloud":"VPC","subnet":"VPC",
   "direct connect":"DirectConnect","dx":"DirectConnect",
   "transit gateway":"TransitGateway","tgw":"TransitGateway",
   "vpc lattice":"VPCLattice","lattice":"VPCLattice",
-  "api gateway":"APIGateway","api":"APIGateway","gateway":"APIGateway",
+  "api gateway":"APIGateway","apigateway":"APIGateway","rest api":"APIGateway","gateway":"APIGateway",
   "step functions":"StepFunctions","stepfunctions":"StepFunctions","state machine":"StepFunctions",
   "appsync":"AppSync","graphql":"AppSync",
-  "lambda":"Lambda","function":"Lambda","serverless":"Lambda",
-  "ec2 (blue)":"EC2Blue","blue environment":"EC2Blue","blue":"EC2Blue",
-  "ec2 (green)":"EC2Green","green environment":"EC2Green","green":"EC2Green",
-  "ec2":"EC2","server":"EC2","vm":"EC2",
-  "ecs":"ECS","container":"ECS","docker":"ECS",
+  "lambda":"Lambda","serverless function":"Lambda","lambda function":"Lambda",
+  "ec2 (blue)":"EC2Blue","blue environment":"EC2Blue","ec2blue":"EC2Blue",
+  "ec2 (green)":"EC2Green","green environment":"EC2Green","ec2green":"EC2Green",
+  "ec2":"EC2","virtual machine":"EC2","vm":"EC2",
+  "ecs":"ECS","elastic container service":"ECS","docker":"ECS",
   "eks":"EKS","kubernetes":"EKS","k8s":"EKS",
   "fargate":"Fargate","serverless container":"Fargate",
-  "auto scaling":"AutoScaling","autoscaling":"AutoScaling","scale":"AutoScaling",
+  "auto scaling":"AutoScaling","autoscaling":"AutoScaling","asg":"AutoScaling","auto scale":"AutoScaling",
   "app runner":"AppRunner","apprunner":"AppRunner",
-  "batch":"Batch",
+  "batch":"Batch","aws batch":"Batch",
   "elastic beanstalk":"ElasticBeanstalk","beanstalk":"ElasticBeanstalk",
-  "bedrock":"Bedrock","llm":"Bedrock","claude":"Bedrock","ai model":"Bedrock",
-  "sagemaker":"SageMaker","ml":"SageMaker","machine learning":"SageMaker",
-  "sqs":"SQS","queue":"SQS","simple queue":"SQS",
-  "sns":"SNS","notification":"SNS","pubsub":"SNS",
-  "eventbridge":"EventBridge","events":"EventBridge","bus":"EventBridge",
-  "mq":"MQ","activemq":"MQ","rabbitmq":"MQ",
-  "ses":"SES","email":"SES",
-  "dynamodb":"DynamoDB","dynamo":"DynamoDB","nosql":"DynamoDB",
-  "rds":"RDS","database":"RDS","sql":"RDS",
-  "aurora":"Aurora","serverless database":"Aurora",
-  "elasticache":"ElastiCache","redis":"ElastiCache","cache":"ElastiCache","valkey":"ElastiCache",
+  "bedrock":"Bedrock","llm":"Bedrock","claude":"Bedrock","foundation model":"Bedrock",
+  "sagemaker":"SageMaker","machine learning":"SageMaker","ml model":"SageMaker",
+  "sqs":"SQS","simple queue service":"SQS","message queue":"SQS",
+  "sns":"SNS","simple notification service":"SNS","pubsub":"SNS",
+  "eventbridge":"EventBridge","event bus":"EventBridge","cloudwatch events":"EventBridge",
+  "mq":"MQ","activemq":"MQ","rabbitmq":"MQ","amazon mq":"MQ",
+  "ses":"SES","simple email service":"SES","email service":"SES",
+  "dynamodb":"DynamoDB","dynamo":"DynamoDB","nosql database":"DynamoDB",
+  "rds":"RDS","relational database":"RDS","sql database":"RDS","postgres":"RDS","mysql":"RDS",
+  "aurora":"Aurora","aurora serverless":"Aurora",
+  "elasticache":"ElastiCache","redis":"ElastiCache","memcached":"ElastiCache","valkey":"ElastiCache",
   "neptune":"Neptune","graph database":"Neptune",
   "redshift":"Redshift","data warehouse":"Redshift",
   "documentdb":"DocumentDB","mongodb":"DocumentDB",
-  "s3":"S3","bucket":"S3","storage":"S3","blob":"S3",
-  "ebs":"EBS","block storage":"EBS","volume":"EBS",
-  "efs":"EFS","file storage":"EFS","nfs":"EFS",
-  "backup":"Backup",
-  "cloudwatch":"CloudWatch","monitor":"CloudWatch","metrics":"CloudWatch","logs":"CloudWatch",
-  "cloudtrail":"CloudTrail","trail":"CloudTrail","audit":"CloudTrail",
-  "config":"Config",
-  "xray":"XRay","x-ray":"XRay","tracing":"XRay",
-  "iam":"IAM","permissions":"IAM","policy":"IAM",
-  "cognito":"Cognito","auth":"Cognito","login":"Cognito","user pool":"Cognito",
-  "secrets manager":"SecretsManager","secretsmanager":"SecretsManager","credentials":"SecretsManager",
-  "kms":"KMS","key management":"KMS","encryption":"KMS",
-  "shield":"Shield","ddos":"Shield",
-  "acm":"ACM","certificate":"ACM","ssl":"ACM",
-  "athena":"Athena","sql query":"Athena",
-  "kinesis":"Kinesis","streaming":"Kinesis","data firehose":"Kinesis",
-  "glue":"Glue","etl":"Glue","catalog":"Glue",
-  "opensearch":"OpenSearch","search":"OpenSearch","elasticsearch":"OpenSearch",
-  "codecommit":"CodeCommit","github":"CodeCommit","git":"CodeCommit",
-  "codebuild":"CodeBuild","build":"CodeBuild",
-  "codetest":"CodeTest","test":"CodeTest","validate":"CodeTest",
-  "codedeploy":"CodeDeploy","deploy":"CodeDeploy",
-  "codepipeline":"CodePipeline","pipeline":"CodePipeline","ci/cd":"CodePipeline",
+  "s3":"S3","s3 bucket":"S3","object storage":"S3","blob storage":"S3",
+  "ebs":"EBS","elastic block store":"EBS","block volume":"EBS",
+  "efs":"EFS","elastic file system":"EFS","nfs":"EFS",
+  "backup":"Backup","aws backup":"Backup",
+  "cloudwatch":"CloudWatch","cloudwatch metrics":"CloudWatch","cloudwatch logs":"CloudWatch","metrics":"CloudWatch","logs":"CloudWatch",
+  "cloudtrail":"CloudTrail","audit log":"CloudTrail","aws cloudtrail":"CloudTrail",
+  "config":"Config","aws config":"Config",
+  "xray":"XRay","x-ray":"XRay","distributed tracing":"XRay",
+  "iam":"IAM","iam role":"IAM","iam policy":"IAM","identity and access":"IAM",
+  "cognito":"Cognito","user pool":"Cognito","auth service":"Cognito",
+  "secrets manager":"SecretsManager","secretsmanager":"SecretsManager","secrets":"SecretsManager",
+  "kms":"KMS","key management service":"KMS","encryption key":"KMS",
+  "shield":"Shield","aws shield":"Shield","ddos protection":"Shield",
+  "acm":"ACM","certificate manager":"ACM","ssl certificate":"ACM",
+  "athena":"Athena","aws athena":"Athena","sql query":"Athena",
+  "kinesis":"Kinesis","kinesis streams":"Kinesis","data firehose":"Kinesis",
+  "glue":"Glue","aws glue":"Glue","etl":"Glue","data catalog":"Glue",
+  "opensearch":"OpenSearch","elasticsearch":"OpenSearch","opensearch service":"OpenSearch",
+  "codecommit":"CodeCommit","git repository":"CodeCommit",
+  "codebuild":"CodeBuild","build stage":"CodeBuild","build pipeline":"CodeBuild",
+  "codetest":"CodeTest","unit test":"CodeTest","automated test":"CodeTest","testing stage":"CodeTest",
+  "codedeploy":"CodeDeploy","deployment stage":"CodeDeploy","deploy stage":"CodeDeploy",
+  "codepipeline":"CodePipeline","cicd pipeline":"CodePipeline","ci/cd pipeline":"CodePipeline",
   "static analysis":"StaticAnalysis","sast":"SAST","dependency scan":"DependencyScan","secrets scan":"SecretsScan"
 };
 
@@ -460,9 +460,11 @@ function parse(text){
     for (const [key, svc] of Object.entries(SERVICES)) {
       if (s === key.toLowerCase() || s === svc.label.toLowerCase()) return key;
     }
-    // Try aliases
-    for(const [alias, svc] of sortedAliases){
-      if(s.includes(alias)) return svc;
+    // Try aliases with whole word boundary
+    for (const [alias, svc] of sortedAliases) {
+      const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      const regex = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'i');
+      if (regex.test(s)) return svc;
     }
     return null;
   };
@@ -572,15 +574,16 @@ function parse(text){
     }
   }
 
-  // Fallback to simple linear list parsing if no explicit notation was found
-  const sorted = Object.entries(ALIASES).sort((a,b)=>b[0].length-a[0].length);
-  const lower = text.toLowerCase();
+  // Fallback to word-boundary keyword parsing if no explicit notation was found
   const matches = [];
-  for (const [alias, svc] of sorted) {
-    let i = lower.indexOf(alias);
-    while (i !== -1) {
-      matches.push({ i, end: i + alias.length, svc });
-      i = lower.indexOf(alias, i + 1);
+  for (const [alias, svc] of sortedAliases) {
+    const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const regex = new RegExp(`(^|[^a-z0-9])${escaped}([^a-z0-9]|$)`, 'gi');
+    let match;
+    while ((match = regex.exec(text)) !== null) {
+      const idx = match.index + match[1].length;
+      matches.push({ i: idx, end: idx + alias.length, svc });
+      regex.lastIndex = idx + alias.length;
     }
   }
   matches.sort((a,b) => a.i - b.i || (b.end - b.i) - (a.end - a.i));
@@ -595,7 +598,7 @@ function parse(text){
   }
 
   if (!filtered.length) {
-    throw new Error("No AWS services recognized. Please mention valid services (e.g. API Gateway, Lambda, S3).");
+    throw new Error("No AWS services recognized. Please mention valid services (e.g. API Gateway, Lambda, S3) or configure an AI API key.");
   }
 
   const outNodes = [];
@@ -618,19 +621,44 @@ function parse(text){
   return { nodes: outNodes, edges: outEdges };
 }
 
-const NW=120,NH=100,HG=90,VG=70,PAD=60;
+const NW=120,NH=100,HG=110,VG=80,PAD=60;
 function layout(nodes,edges){
   const inE={};nodes.forEach(n=>(inE[n.id]=[]));
   edges.forEach(e=>{if(inE[e.t])inE[e.t].push(e.f);});
   const layer={};nodes.forEach(n=>{if(!inE[n.id].length)layer[n.id]=0;});
   let ch=true,it=0;
-  while(ch&&it++<50){ch=false;edges.forEach(e=>{if(layer[e.f]!==undefined){const nx=layer[e.f]+1;if(layer[e.t]===undefined||layer[e.t]<nx){layer[e.t]=nx;ch=true;}}});}
+  while(ch&&it++<50){
+    ch=false;
+    edges.forEach(e=>{
+      if(layer[e.f]!==undefined){
+        const nx=layer[e.f]+1;
+        if(layer[e.t]===undefined||layer[e.t]<nx){
+          layer[e.t]=nx;
+          ch=true;
+        }
+      }
+    });
+  }
   nodes.forEach(n=>{if(layer[n.id]===undefined)layer[n.id]=0;});
   const cols={};nodes.forEach(n=>{const l=layer[n.id];if(!cols[l])cols[l]=[];cols[l].push(n.id);});
+  
+  const colKeys = Object.keys(cols).map(Number).sort((a,b)=>a-b);
+  const maxRows = Math.max(...colKeys.map(k=>cols[k].length), 1);
+  const maxColH = (maxRows - 1) * (NH + VG);
+
   const pos={};
-  Object.keys(cols).map(Number).sort((a,b)=>a-b).forEach((ck,ci)=>{
-    cols[ck].forEach((id,ri)=>{pos[id]={x:PAD+ci*(NW+HG),y:PAD+ri*(NH+VG)};});
+  colKeys.forEach((ck,ci)=>{
+    const colNodes = cols[ck];
+    const colH = (colNodes.length - 1) * (NH + VG);
+    const startY = PAD + (maxColH - colH) / 2;
+    colNodes.forEach((id,ri)=>{
+      pos[id] = {
+        x: PAD + ci * (NW + HG),
+        y: Math.round(startY + ri * (NH + VG))
+      };
+    });
   });
+
   const px=Object.values(pos);
   return{pos,W:Math.max(...px.map(p=>p.x+NW))+PAD,H:Math.max(...px.map(p=>p.y+NH))+PAD};
 }
@@ -657,8 +685,8 @@ export default function App(){
   const[promptPos,setPromptPos]=useState({x:0,y:0});
   const[error,setError]=useState("");
   const[apiKey,setApiKey]=useState(()=>localStorage.getItem("matrix_ai_key")||"");
-  const[apiBase,setApiBase]=useState(()=>localStorage.getItem("matrix_ai_base")||"https://api.openai.com/v1/chat/completions");
-  const[apiModel,setApiModel]=useState(()=>localStorage.getItem("matrix_ai_model")||"gpt-3.5-turbo");
+  const[apiBase,setApiBase]=useState(()=>localStorage.getItem("matrix_ai_base")||"https://generativelanguage.googleapis.com/v1beta/openai/chat/completions");
+  const[apiModel,setApiModel]=useState(()=>localStorage.getItem("matrix_ai_model")||"gemini-2.0-flash");
   const[showSettings,setShowSettings]=useState(false);
   const canvasRef=useRef(null);
   const dragRef=useRef(null); // {type:"pan"|"node", startX, startY, nodeId?, startPos?, scrollX?, scrollY?}
@@ -728,18 +756,11 @@ export default function App(){
     setLoading(true);setError("");
     let parsedText = txt;
     let aiError = false;
+    const isDirectSyntax = txt.includes("->") || (txt.includes("[") && txt.includes("]"));
 
     if (apiKey) {
       try {
-        const res = await fetch(apiBase, {
-          method: "POST",
-          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${apiKey}` },
-          body: JSON.stringify({
-            model: apiModel,
-            messages: [
-              {
-                role: "system", 
-                content: `You are an AWS architecture expert. Extract or infer the AWS architecture from the user's prompt. 
+        const sysPrompt = `You are an AWS architecture expert. Extract or infer the AWS architecture from the user's prompt. 
 You MUST use ONLY the following exact service names: ${Object.keys(SERVICES).join(", ")}.
 
 CRITICAL ARCHITECTURE RULES:
@@ -797,18 +818,35 @@ ALB -> EC2Blue
 ALB -> EC2Green
 CodeDeploy -> EC2Green
 
-ONLY output the architecture using '->' arrows. Do not use any other service names or text. If the prompt is invalid, reply EXACTLY with the word 'INVALID'.`
-              },
-              {role: "user", content: txt}
+ONLY output the architecture using '->' arrows. Do not use any other service names or text. If the prompt is invalid, reply EXACTLY with the word 'INVALID'.`;
+
+        const res = await fetch(apiBase, {
+          method: "POST",
+          headers: { 
+            "Content-Type": "application/json", 
+            "Authorization": `Bearer ${apiKey.trim()}` 
+          },
+          body: JSON.stringify({
+            model: apiModel,
+            messages: [
+              { role: "system", content: sysPrompt },
+              { role: "user", content: txt }
             ],
             temperature: 0.1
           })
         });
+
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          const msg = errData.error?.message || `HTTP ${res.status}: ${res.statusText}`;
+          throw new Error(msg);
+        }
+
         const data = await res.json();
         if (data.choices && data.choices.length > 0) {
-          parsedText = data.choices[0].message.content.trim();
+          parsedText = data.choices[0].message?.content?.trim() || "";
           if (parsedText.toUpperCase().includes("INVALID") || !parsedText.includes("->")) {
-            throw new Error("The AI could not determine an AWS architecture from your prompt. Please be more specific.");
+            throw new Error("The AI could not determine an AWS architecture from your prompt. Please be more specific or name services directly.");
           }
         } else if (data.error) {
           throw new Error("API Error: " + data.error.message);
@@ -816,32 +854,39 @@ ONLY output the architecture using '->' arrows. Do not use any other service nam
       } catch (err) {
         console.error("AI Error:", err);
         aiError = true;
-        if (err.message.includes("could not determine")) {
-          // AI evaluated the prompt and found it invalid. Do not fall back.
+        if (err.message && err.message.includes("could not determine")) {
           setError("⚠ " + err.message);
           setLoading(false);
           return;
         } else {
-          // Network or API key error. Fall back to offline parser.
-          setError(`⚠ AI Error: ${err.message}. Falling back to offline parser...`);
+          setError(`⚠ AI Warning: ${err.message}. Using offline keyword parser...`);
           parsedText = txt;
         }
       }
     } else {
-      await new Promise(r=>setTimeout(r,500));
+      await new Promise(r=>setTimeout(r, 200));
     }
 
-    try{
-      const{nodes,edges}=parse(parsedText);
-      const{pos,W,H}=layout(nodes,edges);
-      setDiagram({nodes,edges,pos,W:Math.max(W,900),H:Math.max(H,400)});setTitle("Architecture Diagram");setSel(null);
-      setHistory(h=>[{prompt:txt,diagram:{nodes,edges,pos,W:Math.max(W,900),H:Math.max(H,400)},ts:Date.now()},...h].slice(0,8));
-    }catch(e){
+    try {
+      const { nodes, edges } = parse(parsedText);
+      const { pos, W, H } = layout(nodes, edges);
+      setDiagram({ nodes, edges, pos, W: Math.max(W, 900), H: Math.max(H, 400) });
+      setTitle("Architecture Diagram");
+      setSel(null);
+      setHistory(h => [{ prompt: txt, diagram: { nodes, edges, pos, W: Math.max(W, 900), H: Math.max(H, 400) }, ts: Date.now() }, ...h].slice(0, 8));
+    } catch(e) {
       console.error(e);
-      if(!aiError) setError(e.message || "Failed to generate architecture.");
+      if (!aiError) {
+        if (!apiKey && !isDirectSyntax) {
+          setError(`No services recognized. 💡 Tip: Add a free Google Gemini or Groq API key in Settings (⚙) to generate architectures from natural language prompts!`);
+        } else {
+          setError(e.message || "Failed to generate architecture.");
+        }
+      }
+    } finally {
+      setLoading(false);
     }
-    finally{setLoading(false);}
-  },[prompt, apiKey, apiBase, apiModel]);
+  }, [prompt, apiKey, apiBase, apiModel]);
 
   const handleShare=useCallback(()=>{
     if(!diagram)return;
@@ -1429,13 +1474,37 @@ ONLY output the architecture using '->' arrows. Do not use any other service nam
       
       {showSettings && (
         <div className="modal-overlay" onClick={()=>setShowSettings(false)}>
-          <div className="modal-box" onClick={e=>e.stopPropagation()} style={{width:"460px", padding:"30px"}}>
-            <h3 className="section-title" style={{fontSize:18, border:"none", padding:0, margin:0, color:"var(--text)"}}>Generator Settings</h3>
-            <p style={{fontSize:13, color:"var(--dim)", marginTop:12, marginBottom:20, lineHeight:1.5}}>
-              Configure API details to enable smart diagram layout suggestions.
+          <div className="modal-box" onClick={e=>e.stopPropagation()} style={{width:"480px", padding:"28px"}}>
+            <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:10}}>
+              <h3 className="section-title" style={{fontSize:18, border:"none", padding:0, margin:0, color:"var(--text)", display:"flex", alignItems:"center", gap:8}}>
+                ⚙️ Generator AI Settings
+              </h3>
+              <button className="info-close" onClick={()=>setShowSettings(false)}>✕</button>
+            </div>
+            <p style={{fontSize:13, color:"var(--dim)", marginBottom:16, lineHeight:1.5}}>
+              Connect a free AI model to automatically generate architectures from natural language prompts.
             </p>
             
-            <div style={{display:"flex", flexDirection:"column", gap:12}}>
+            {/* Quick Presets */}
+            <div style={{marginBottom:18}}>
+              <label style={{fontSize:11, color:"var(--dim)", display:"block", marginBottom:8, textTransform:"uppercase", letterSpacing:".05em", fontWeight:700}}>Quick Presets</label>
+              <div style={{display:"flex", flexWrap:"wrap", gap:8}}>
+                <button type="button" className="btn-ghost" style={{color:"#1a73e8", fontSize:"12px", padding:"6px 10px", border:"1.5px solid #1a73e8", borderRadius:6, background:"#f4f8ff", fontWeight:700, cursor:"pointer"}} onClick={()=>{
+                  setApiBase("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions");
+                  setApiModel("gemini-2.0-flash");
+                }}>⚡ Gemini 2.0 (Free)</button>
+                <button type="button" className="btn-ghost" style={{color:"var(--orange)", fontSize:"12px", padding:"6px 10px", border:"1.5px solid var(--orange)", borderRadius:6, background:"#fff9f5", fontWeight:700, cursor:"pointer"}} onClick={()=>{
+                  setApiBase("https://api.groq.com/openai/v1/chat/completions");
+                  setApiModel("llama-3.3-70b-versatile");
+                }}>⚡ Groq Llama 3.3 (Free)</button>
+                <button type="button" className="btn-ghost" style={{color:"#10a37f", fontSize:"12px", padding:"6px 10px", border:"1.5px solid #10a37f", borderRadius:6, background:"#f0fdf4", fontWeight:700, cursor:"pointer"}} onClick={()=>{
+                  setApiBase("https://api.openai.com/v1/chat/completions");
+                  setApiModel("gpt-4o-mini");
+                }}>⚡ OpenAI (gpt-4o-mini)</button>
+              </div>
+            </div>
+
+            <div style={{display:"flex", flexDirection:"column", gap:14}}>
               <div>
                 <label style={{fontSize:11, color:"var(--dim)", display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:".05em", fontWeight:700}}>API Endpoint</label>
                 <input type="text" value={apiBase} onChange={e=>setApiBase(e.target.value)} 
@@ -1447,28 +1516,29 @@ ONLY output the architecture using '->' arrows. Do not use any other service nam
                   style={{width:"100%", padding:"10px 12px", background:"#faf8f5", border:"2px solid var(--border)", borderRadius:"8px", color:"var(--text)", fontSize:"13px", outline:"none", fontFamily:"monospace", fontWeight:"600"}}/>
               </div>
               <div>
-                <label style={{fontSize:11, color:"var(--dim)", display:"block", marginBottom:4, textTransform:"uppercase", letterSpacing:".05em", fontWeight:700}}>API Key</label>
+                <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4}}>
+                  <label style={{fontSize:11, color:"var(--dim)", textTransform:"uppercase", letterSpacing:".05em", fontWeight:700}}>API Key</label>
+                  {apiBase.includes("generativelanguage.googleapis.com") && (
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noreferrer" style={{fontSize:11, color:"#1a73e8", textDecoration:"underline", fontWeight:700}}>Get free Gemini key ↗</a>
+                  )}
+                  {apiBase.includes("groq.com") && (
+                    <a href="https://console.groq.com/keys" target="_blank" rel="noreferrer" style={{fontSize:11, color:"var(--orange)", textDecoration:"underline", fontWeight:700}}>Get free Groq key ↗</a>
+                  )}
+                </div>
                 <input type="password" value={apiKey} onChange={e=>setApiKey(e.target.value)} 
-                  placeholder="Optional API key..." 
+                  placeholder="Paste your API key here..." 
                   style={{width:"100%", padding:"10px 12px", background:"#faf8f5", border:"2px solid var(--border)", borderRadius:"8px", color:"var(--text)", fontFamily:"monospace", fontSize:"13px", outline:"none", fontWeight:"600"}}/>
               </div>
             </div>
 
-            <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:28}}>
-              <button className="btn-ghost" style={{color:"var(--orange)", fontSize:"12px", padding:"6px 12px"}} onClick={()=>{
-                setApiBase("https://api.groq.com/openai/v1/chat/completions");
-                setApiModel("llama-3.3-70b-versatile");
-              }}>Use Free Groq Preset</button>
-
-              <div style={{display:"flex", gap:10}}>
-                <button className="btn-ghost" onClick={()=>setShowSettings(false)}>Cancel</button>
-                <button className="btn-primary" onClick={()=>{
-                  localStorage.setItem("matrix_ai_key", apiKey);
-                  localStorage.setItem("matrix_ai_base", apiBase);
-                  localStorage.setItem("matrix_ai_model", apiModel);
-                  setShowSettings(false);
-                }}>Save</button>
-              </div>
+            <div style={{display:"flex", justifyContent:"flex-end", gap:10, marginTop:24}}>
+              <button className="btn-ghost" onClick={()=>setShowSettings(false)}>Cancel</button>
+              <button className="btn-primary" onClick={()=>{
+                localStorage.setItem("matrix_ai_key", apiKey.trim());
+                localStorage.setItem("matrix_ai_base", apiBase.trim());
+                localStorage.setItem("matrix_ai_model", apiModel.trim());
+                setShowSettings(false);
+              }}>Save Settings</button>
             </div>
           </div>
         </div>

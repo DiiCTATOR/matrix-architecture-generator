@@ -574,7 +574,113 @@ function parse(text){
     }
   }
 
-  // Fallback to word-boundary keyword parsing if no explicit notation was found
+  // ── NATURAL LANGUAGE INTENT ARCHETYPES ──────────────────────────
+  const lower = text.toLowerCase().trim();
+
+  // 1. Three-tier / Scalable Web App
+  if (/\b(three[- ]?tier|3[- ]?tier|web\s*app|ecommerce|full\s*stack|scalable\s*web|web\s*application)\b/i.test(lower) && !lower.includes("serverless") && !lower.includes("pipeline")) {
+    return parse(`User -> Route53
+Route53 -> CloudFront
+CloudFront -> WAF
+WAF -> ALB
+ALB -> AutoScaling
+AutoScaling -> EC2
+EC2 -> RDS
+EC2 -> ElastiCache`);
+  }
+
+  // 2. Serverless API / Backend
+  if (/\b(serverless|rest\s*api|crud\s*api|backend\s*api|lambda\s*api|serverless\s*backend|microservice)\b/i.test(lower) && !lower.includes("pipeline")) {
+    return parse(`User -> Route53
+Route53 -> CloudFront
+CloudFront -> WAF
+WAF -> APIGateway
+APIGateway -> Lambda
+Lambda -> DynamoDB
+Lambda -> S3`);
+  }
+
+  // 3. CI/CD DevOps Pipeline
+  if (/\b(ci[\s/-]?cd|devops|pipeline|build\s*pipeline|deployment\s*pipeline|continuous\s*integration)\b/i.test(lower)) {
+    return parse(`CodeCommit -> CodePipeline
+CodePipeline -> CodeBuild
+CodeBuild -> StaticAnalysis
+CodeBuild -> SAST
+CodeBuild -> DependencyScan
+CodeBuild -> SecretsScan
+StaticAnalysis -> CodeTest
+SAST -> CodeTest
+DependencyScan -> CodeTest
+SecretsScan -> CodeTest
+CodeTest -> CodeDeploy
+CodeDeploy -> EC2
+EC2 -> CloudWatch
+CloudWatch -> SNS
+SNS -> CodePipeline`);
+  }
+
+  // 4. Blue/Green Deployment
+  if (/\b(blue[\s/-]?green|canary|zero\s*downtime)\b/i.test(lower)) {
+    return parse(`User -> Route53
+Route53 -> CloudFront
+CloudFront -> ALB
+ALB -> EC2Blue
+ALB -> EC2Green
+CodeDeploy -> EC2Green`);
+  }
+
+  // 5. Event Driven / Microservices Messaging
+  if (/\b(event[\s-]?driven|message\s*queue|pub[\s-]?sub|async\s*processing|eventbridge|sqs|sns)\b/i.test(lower)) {
+    return parse(`User -> APIGateway
+APIGateway -> Lambda
+Lambda -> EventBridge
+EventBridge -> SQS
+SQS -> ECS
+ECS -> DynamoDB
+ECS -> CloudWatch`);
+  }
+
+  // 6. Generative AI / RAG / Bedrock
+  if (/\b(ai|llm|rag|bedrock|generative\s*ai|genai|chatbot|sagemaker|machine\s*learning)\b/i.test(lower)) {
+    return parse(`User -> CloudFront
+CloudFront -> APIGateway
+APIGateway -> Lambda
+Lambda -> Bedrock
+Bedrock -> OpenSearch
+Lambda -> DynamoDB
+Lambda -> S3`);
+  }
+
+  // 7. Data Analytics / Data Lake / Streaming
+  if (/\b(analytics|data\s*lake|data\s*pipeline|streaming|kinesis|etl|big\s*data|athena|glue)\b/i.test(lower)) {
+    return parse(`Internet -> Kinesis
+Kinesis -> Glue
+Glue -> S3
+S3 -> Athena
+Athena -> OpenSearch`);
+  }
+
+  // 8. Containerized Microservices / Kubernetes
+  if (/\b(container|kubernetes|k8s|ecs|eks|fargate|docker)\b/i.test(lower)) {
+    return parse(`User -> Route53
+Route53 -> CloudFront
+CloudFront -> WAF
+WAF -> ALB
+ALB -> ECS
+ECS -> Aurora
+ECS -> ElastiCache`);
+  }
+
+  // 9. Static Website
+  if (/\b(static\s*(website|site)|spa|single\s*page|react\s*app|s3\s*hosting)\b/i.test(lower)) {
+    return parse(`User -> Route53
+Route53 -> CloudFront
+CloudFront -> WAF
+WAF -> S3
+User -> Cognito`);
+  }
+
+  // ── EXTRACT AWS SERVICES BY WHOLE-WORD BOUNDARIES ───────────────
   const matches = [];
   for (const [alias, svc] of sortedAliases) {
     const escaped = alias.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -598,7 +704,8 @@ function parse(text){
   }
 
   if (!filtered.length) {
-    throw new Error("No AWS services recognized. Please mention valid services (e.g. API Gateway, Lambda, S3) or configure an AI API key.");
+    // If user typed anything, give them a helpful starter diagram rather than throwing an error
+    return parse(`User -> Route53 -> CloudFront -> WAF -> ALB -> AutoScaling -> EC2 -> RDS`);
   }
 
   const outNodes = [];
@@ -873,20 +980,19 @@ ONLY output the architecture using '->' arrows. Do not use any other service nam
       setDiagram({ nodes, edges, pos, W: Math.max(W, 900), H: Math.max(H, 400) });
       setTitle("Architecture Diagram");
       setSel(null);
+      if (!isDirectSyntax) {
+        setPrompt(graphToText(nodes, edges));
+      }
       setHistory(h => [{ prompt: txt, diagram: { nodes, edges, pos, W: Math.max(W, 900), H: Math.max(H, 400) }, ts: Date.now() }, ...h].slice(0, 8));
     } catch(e) {
       console.error(e);
       if (!aiError) {
-        if (!apiKey && !isDirectSyntax) {
-          setError(`No services recognized. 💡 Tip: Add a free Google Gemini or Groq API key in Settings (⚙) to generate architectures from natural language prompts!`);
-        } else {
-          setError(e.message || "Failed to generate architecture.");
-        }
+        setError(e.message || "Failed to generate architecture.");
       }
     } finally {
       setLoading(false);
     }
-  }, [prompt, apiKey, apiBase, apiModel]);
+  }, [prompt, apiKey, apiBase, apiModel, graphToText]);
 
   const handleShare=useCallback(()=>{
     if(!diagram)return;
@@ -1006,17 +1112,37 @@ ONLY output the architecture using '->' arrows. Do not use any other service nam
           
           {activeTab === "editor" && (
             <div className="editor-tab" style={{flex:1, display:"flex", flexDirection:"column", overflowY:"auto", padding:"16px", gap:"16px"}}>
-              <div style={{flex:1, display:"flex", flexDirection:"column"}}>
+              <div style={{display:"flex", flexDirection:"column"}}>
                 <textarea 
                   className="prompt-area" 
                   value={prompt} 
                   onChange={e=>setPrompt(e.target.value)}
-                  placeholder={"Describe your AWS architecture...\n\ne.g. User -> WAF -> CloudFront -> API Gateway -> Lambda -> DynamoDB"}
-                  style={{flex:1, minHeight:"200px", width:"100%", resize:"none", fontFamily:"monospace", fontSize:"13px", lineHeight:"1.6", border:"2.5px solid var(--border)", borderRadius:"8px", padding:"12px", outline:"none", background:"#faf8f5", color:"var(--text)", fontWeight:"600", boxShadow:"4px 4px 0px rgba(42,39,36,0.1)"}}
+                  onKeyDown={e => {
+                    if ((e.ctrlKey || e.metaKey) && e.key === "Enter") {
+                      e.preventDefault();
+                      generate(prompt);
+                    }
+                  }}
+                  placeholder={"Describe your architecture in plain English or DSL...\n\ne.g. 'Three tier web app with caching' or 'User -> WAF -> CloudFront -> Lambda -> DynamoDB'"}
+                  style={{minHeight:"160px", width:"100%", resize:"none", fontFamily:"monospace", fontSize:"13px", lineHeight:"1.6", border:"2.5px solid var(--border)", borderRadius:"8px", padding:"12px", outline:"none", background:"#faf8f5", color:"var(--text)", fontWeight:"600", boxShadow:"4px 4px 0px rgba(42,39,36,0.1)"}}
                 />
-                <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:"8px"}}>
-                  <div className="hint" style={{fontSize:10, color:"var(--dim)", fontWeight:"700"}}>Use {"->"} to connect services</div>
-                  {loading && <span className="spinner" style={{width:14, height:14, border:"2px solid var(--orange)", borderTopColor:"transparent", borderRadius:"50%", animation:"spin 1.5s linear infinite"}} />}
+                <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", marginTop:"10px", gap:8}}>
+                  <div className="hint" style={{fontSize:10, color:"var(--dim)", fontWeight:"700"}}>Press Ctrl+Enter to generate</div>
+                  <button 
+                    className="btn-primary" 
+                    style={{padding:"8px 16px", fontSize:"12px", display:"flex", alignItems:"center", gap:6, cursor:"pointer"}} 
+                    onClick={() => generate(prompt)}
+                    disabled={loading}
+                  >
+                    {loading ? (
+                      <>
+                        <span className="spinner" style={{width:12, height:12, border:"2px solid #ffffff", borderTopColor:"transparent", borderRadius:"50%", animation:"spin 1.5s linear infinite"}} />
+                        <span>Generating…</span>
+                      </>
+                    ) : (
+                      <>✨ Generate Diagram</>
+                    )}
+                  </button>
                 </div>
               </div>
               

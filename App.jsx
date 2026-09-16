@@ -1017,6 +1017,7 @@ EC2_AZ_B -> RDS_Primary : "Cross-AZ Write"
 RDS_Primary -> RDS_Secondary : "Sync Replication"`;
 
 export default function App() {
+  const [page, setPage] = useState("landing");
   const [prompt, setPrompt] = useState(DEFAULT_PROMPT);
   
   const [diagram, setDiagram] = useState(() => {

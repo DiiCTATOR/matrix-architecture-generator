@@ -1004,9 +1004,7 @@ function bezier(f, t, pos, isBi = false) {
   };
 }
 
-export default function App() {
-  const [page, setPage] = useState("landing");
-  const [prompt, setPrompt] = useState(`// Multi-AZ Scalable Web Application
+const DEFAULT_PROMPT = `// Multi-AZ Scalable Web Application
 User -> ALB : "HTTPS Traffic"
 ALB -> EC2_AZ_A : "Forward AZ-A"
 ALB -> EC2_AZ_B : "Forward AZ-B"
@@ -1016,9 +1014,21 @@ EC2_AZ_B <-> ElastiCache_AZ_A : "Cross-AZ Cache"
 EC2_AZ_B <-> ElastiCache_AZ_B : "Cache Read/Write"
 EC2_AZ_A -> RDS_Primary : "SQL Read/Write"
 EC2_AZ_B -> RDS_Primary : "Cross-AZ Write"
-RDS_Primary -> RDS_Secondary : "Sync Replication"`);
+RDS_Primary -> RDS_Secondary : "Sync Replication"`;
+
+export default function App() {
+  const [prompt, setPrompt] = useState(DEFAULT_PROMPT);
   
-  const [diagram, setDiagram] = useState(null);
+  const [diagram, setDiagram] = useState(() => {
+    try {
+      const parsed = parse(DEFAULT_PROMPT);
+      const { pos, containers, W, H } = layout(parsed.nodes, parsed.edges);
+      return { nodes: parsed.nodes, edges: parsed.edges, pos, containers, W: Math.max(W, 1000), H: Math.max(H, 700) };
+    } catch (e) {
+      return null;
+    }
+  });
+
   const [viewMode, setViewMode] = useState("blueprint");
   const [loading, setLoading] = useState(false);
   const [sel, setSel] = useState(null);
@@ -1073,7 +1083,7 @@ RDS_Primary -> RDS_Secondary : "Sync Replication"`);
   };
 
   useEffect(() => {
-    if (!prompt.trim() || page !== "app") return;
+    if (!prompt.trim()) return;
     const t = setTimeout(() => {
       try {
         const parsed = parse(prompt);
@@ -1092,7 +1102,7 @@ RDS_Primary -> RDS_Secondary : "Sync Replication"`);
       }
     }, 300);
     return () => clearTimeout(t);
-  }, [prompt, page]);
+  }, [prompt]);
 
   const generate = useCallback(async (p) => {
     const txt = p ?? prompt;
@@ -1104,6 +1114,9 @@ RDS_Primary -> RDS_Secondary : "Sync Replication"`);
     const isDirectSyntax = txt.includes("->") || txt.includes("<->") || (txt.includes("[") && txt.includes("]"));
 
     if (apiKey.trim() && !isDirectSyntax) {
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 12000);
+
       try {
         const sysPrompt = `You are a Principal AWS Solutions Architect. Convert the user's requirements into an exact AWS Architecture DSL using node declarations and arrows.
 Output ONLY standard AWS service connections using '->' or '<->' with labels.
@@ -1136,6 +1149,7 @@ Output ONLY arrow connections. No explanatory text.`;
             "Content-Type": "application/json", 
             "Authorization": `Bearer ${apiKey.trim()}` 
           },
+          signal: controller.signal,
           body: JSON.stringify({
             model: apiModel,
             messages: [
@@ -1146,15 +1160,26 @@ Output ONLY arrow connections. No explanatory text.`;
           })
         });
 
+        clearTimeout(timeoutId);
+
         if (res.ok) {
           const data = await res.json();
           if (data.choices && data.choices.length > 0) {
             const aiContent = data.choices[0].message?.content?.trim() || "";
             if (aiContent.includes("->")) parsedText = aiContent;
           }
+        } else {
+          const errData = await res.json().catch(() => ({}));
+          const errMsg = errData.error?.message || `API Error HTTP ${res.status}`;
+          setError(`AI Service Notice: ${errMsg}. Using intelligent offline generator.`);
         }
       } catch (err) {
-        console.warn("AI Generation fallback to offline parser:", err);
+        clearTimeout(timeoutId);
+        if (err.name === "AbortError") {
+          setError("API request timed out (12s). Generated using offline architecture engine.");
+        } else {
+          console.warn("AI Generation fallback to offline parser:", err);
+        }
       }
     }
 
@@ -1263,7 +1288,7 @@ Output ONLY arrow connections. No explanatory text.`;
       <div className="grid-overlay"/><div className="dot-overlay"/>
 
       <header className="topbar">
-        <div className="brand" onClick={() => setPage("landing")} style={{ cursor: "pointer" }}>
+        <div className="brand" onClick={() => { setPrompt(DEFAULT_PROMPT); generate(DEFAULT_PROMPT); }} style={{ cursor: "pointer" }} title="Reset to default architecture">
           <svg width="34" height="34" viewBox="0 0 34 34">
             <polygon points="17,2 31,9.5 31,24.5 17,32 3,24.5 3,9.5" fill="none" stroke="#2a2724" strokeWidth="2.5"/>
             <text x="17" y="22" textAnchor="middle" fontSize="14" fontWeight="900" fill="#2a2724" fontFamily="'Outfit', sans-serif">M</text>
@@ -1306,6 +1331,14 @@ Output ONLY arrow connections. No explanatory text.`;
                   placeholder={"Describe your architecture or enter DSL...\n\ne.g. 'Three tier web app with caching' or 'User -> ALB -> EC2_AZ_A'"}
                   style={{ minHeight: "180px", width: "100%", resize: "none", fontFamily: "monospace", fontSize: "12.5px", lineHeight: "1.6", border: "2.5px solid var(--border)", borderRadius: "8px", padding: "12px", outline: "none", background: "#faf8f5", color: "var(--text)", fontWeight: "600", boxShadow: "4px 4px 0px rgba(42,39,36,0.1)" }}
                 />
+                
+                {error && (
+                  <div style={{ marginTop: 8, padding: "8px 12px", background: "#fff5f5", border: "1.5px solid #feb2b2", borderRadius: "6px", color: "#c53030", fontSize: "11px", fontWeight: "600", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                    <span>⚠️ {error}</span>
+                    <button onClick={() => setError("")} style={{ background: "none", border: "none", color: "#c53030", cursor: "pointer", fontWeight: "800", fontSize: "12px" }}>✕</button>
+                  </div>
+                )}
+
                 <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "10px", gap: 8 }}>
                   <div className="hint" style={{ fontSize: 10, color: "var(--dim)", fontWeight: "700" }}>Ctrl+Enter to build</div>
                   <button 
@@ -1779,44 +1812,105 @@ Output ONLY arrow connections. No explanatory text.`;
       
       {showSettings && (
         <div className="modal-overlay" onClick={() => setShowSettings(false)}>
-          <div className="modal-box" onClick={e => e.stopPropagation()} style={{ width: "480px", padding: "28px" }}>
+          <div className="modal-box" onClick={e => e.stopPropagation()} style={{ width: "520px", padding: "28px" }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
               <h3 className="section-title" style={{ fontSize: 18, border: "none", padding: 0, margin: 0, color: "var(--text)", display: "flex", alignItems: "center", gap: 8 }}>
-                ⚙️ Generator AI Settings
+                ⚙️ AI Provider Settings
               </h3>
               <button className="info-close" onClick={() => setShowSettings(false)}>✕</button>
             </div>
-            <p style={{ fontSize: 13, color: "var(--dim)", marginBottom: 16, lineHeight: 1.5 }}>
-              Configure an AI endpoint to infer complex architectures from plain descriptions.
+            <p style={{ fontSize: 12.5, color: "var(--dim)", marginBottom: 14, lineHeight: 1.5 }}>
+              Choose a provider preset or configure a custom OpenAI-compatible endpoint. Leave API Key empty to use the <strong>Instant Offline Generator</strong>.
             </p>
+
+            <div style={{ marginBottom: 16 }}>
+              <label style={{ fontSize: 11, color: "var(--dim)", display: "block", marginBottom: 6, textTransform: "uppercase", letterSpacing: ".05em", fontWeight: 700 }}>Quick Presets</label>
+              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 8 }}>
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setApiBase("https://api.groq.com/openai/v1/chat/completions");
+                    setApiModel("llama-3.3-70b-versatile");
+                  }}
+                  style={{ padding: "8px 10px", fontSize: "11.5px", fontWeight: "700", border: "1.5px solid var(--border)", borderRadius: "6px", background: apiBase.includes("groq") ? "var(--accent)" : "#ffffff", color: apiBase.includes("groq") ? "#ffffff" : "var(--text)", cursor: "pointer", textAlign: "left", boxShadow: "2px 2px 0px var(--border)" }}
+                >
+                  ⚡ Groq (Fastest)
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setApiBase("https://api.openai.com/v1/chat/completions");
+                    setApiModel("gpt-4o-mini");
+                  }}
+                  style={{ padding: "8px 10px", fontSize: "11.5px", fontWeight: "700", border: "1.5px solid var(--border)", borderRadius: "6px", background: apiBase.includes("openai.com") ? "var(--accent)" : "#ffffff", color: apiBase.includes("openai.com") ? "#ffffff" : "var(--text)", cursor: "pointer", textAlign: "left", boxShadow: "2px 2px 0px var(--border)" }}
+                >
+                  ✨ OpenAI (4o-mini)
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setApiBase("https://generativelanguage.googleapis.com/v1beta/openai/chat/completions");
+                    setApiModel("gemini-2.0-flash");
+                  }}
+                  style={{ padding: "8px 10px", fontSize: "11.5px", fontWeight: "700", border: "1.5px solid var(--border)", borderRadius: "6px", background: apiBase.includes("googleapis") ? "var(--accent)" : "#ffffff", color: apiBase.includes("googleapis") ? "#ffffff" : "var(--text)", cursor: "pointer", textAlign: "left", boxShadow: "2px 2px 0px var(--border)" }}
+                >
+                  🔮 Google Gemini
+                </button>
+                <button 
+                  type="button"
+                  onClick={() => {
+                    setApiBase("http://localhost:11434/v1/chat/completions");
+                    setApiModel("llama3.2");
+                  }}
+                  style={{ padding: "8px 10px", fontSize: "11.5px", fontWeight: "700", border: "1.5px solid var(--border)", borderRadius: "6px", background: apiBase.includes("localhost") ? "var(--accent)" : "#ffffff", color: apiBase.includes("localhost") ? "#ffffff" : "var(--text)", cursor: "pointer", textAlign: "left", boxShadow: "2px 2px 0px var(--border)" }}
+                >
+                  💻 Ollama (Local)
+                </button>
+              </div>
+            </div>
             
-            <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
               <div>
                 <label style={{ fontSize: 11, color: "var(--dim)", display: "block", marginBottom: 4, textTransform: "uppercase", letterSpacing: ".05em", fontWeight: 700 }}>API Endpoint</label>
                 <input type="text" value={apiBase} onChange={e => setApiBase(e.target.value)} 
-                  style={{ width: "100%", padding: "10px 12px", background: "#faf8f5", border: "2px solid var(--border)", borderRadius: "8px", color: "var(--text)", fontSize: "13px", outline: "none", fontFamily: "monospace", fontWeight: "600" }}/>
+                  style={{ width: "100%", padding: "8px 10px", background: "#faf8f5", border: "2px solid var(--border)", borderRadius: "8px", color: "var(--text)", fontSize: "12px", outline: "none", fontFamily: "monospace", fontWeight: "600" }}/>
               </div>
               <div>
                 <label style={{ fontSize: 11, color: "var(--dim)", display: "block", marginBottom: 4, textTransform: "uppercase", letterSpacing: ".05em", fontWeight: 700 }}>Model ID</label>
                 <input type="text" value={apiModel} onChange={e => setApiModel(e.target.value)} 
-                  style={{ width: "100%", padding: "10px 12px", background: "#faf8f5", border: "2px solid var(--border)", borderRadius: "8px", color: "var(--text)", fontSize: "13px", outline: "none", fontFamily: "monospace", fontWeight: "600" }}/>
+                  style={{ width: "100%", padding: "8px 10px", background: "#faf8f5", border: "2px solid var(--border)", borderRadius: "8px", color: "var(--text)", fontSize: "12px", outline: "none", fontFamily: "monospace", fontWeight: "600" }}/>
               </div>
               <div>
-                <label style={{ fontSize: 11, color: "var(--dim)", display: "block", marginBottom: 4, textTransform: "uppercase", letterSpacing: ".05em", fontWeight: 700 }}>API Key</label>
+                <label style={{ fontSize: 11, color: "var(--dim)", display: "block", marginBottom: 4, textTransform: "uppercase", letterSpacing: ".05em", fontWeight: 700 }}>API Key (Optional)</label>
                 <input type="password" value={apiKey} onChange={e => setApiKey(e.target.value)} 
-                  placeholder="Paste your API key here..." 
-                  style={{ width: "100%", padding: "10px 12px", background: "#faf8f5", border: "2px solid var(--border)", borderRadius: "8px", color: "var(--text)", fontFamily: "monospace", fontSize: "13px", outline: "none", fontWeight: "600" }}/>
+                  placeholder="Paste your API key here (leave empty for offline instant mode)..." 
+                  style={{ width: "100%", padding: "8px 10px", background: "#faf8f5", border: "2px solid var(--border)", borderRadius: "8px", color: "var(--text)", fontFamily: "monospace", fontSize: "12px", outline: "none", fontWeight: "600" }}/>
               </div>
             </div>
 
-            <div style={{ display: "flex", justifyContent: "flex-end", gap: 10, marginTop: 24 }}>
-              <button className="btn-ghost" onClick={() => setShowSettings(false)}>Cancel</button>
-              <button className="btn-primary" onClick={() => {
-                localStorage.setItem("matrix_ai_key", apiKey.trim());
-                localStorage.setItem("matrix_ai_base", apiBase.trim());
-                localStorage.setItem("matrix_ai_model", apiModel.trim());
-                setShowSettings(false);
-              }}>Save Settings</button>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: 22 }}>
+              {apiKey.trim() ? (
+                <button 
+                  type="button"
+                  className="btn-ghost" 
+                  style={{ fontSize: "11px", color: "#e53e3e" }}
+                  onClick={() => {
+                    setApiKey("");
+                    localStorage.removeItem("matrix_ai_key");
+                  }}
+                >
+                  Clear Key (Use Offline)
+                </button>
+              ) : <div />}
+              <div style={{ display: "flex", gap: 10 }}>
+                <button className="btn-ghost" onClick={() => setShowSettings(false)}>Cancel</button>
+                <button className="btn-primary" onClick={() => {
+                  localStorage.setItem("matrix_ai_key", apiKey.trim());
+                  localStorage.setItem("matrix_ai_base", apiBase.trim());
+                  localStorage.setItem("matrix_ai_model", apiModel.trim());
+                  setShowSettings(false);
+                }}>Save Settings</button>
+              </div>
             </div>
           </div>
         </div>
